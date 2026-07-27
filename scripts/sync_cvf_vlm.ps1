@@ -1,18 +1,19 @@
 <#
-Collect CVPR main-track VLM papers from the official CVF Open Access page.
+Collect CVPR or ICCV main-track VLM papers from the official CVF Open Access page.
 The filter requires an explicit VLM/MLLM/Vision-Language Model term in the
 paper title and intentionally excludes VLA and VLN papers.
 #>
 
 param(
-    [ValidateSet(2025, 2026)]
+    [ValidateSet('CVPR', 'ICCV')]
+    [string]$Conference = 'CVPR',
     [int]$Year = 2026
 )
 
 $ErrorActionPreference = 'Stop'
 
 $readmePath = Join-Path $PSScriptRoot '..\README.md'
-$cvprIndexUrl = "https://openaccess.thecvf.com/CVPR${Year}?day=all"
+$indexUrl = "https://openaccess.thecvf.com/$Conference${Year}?day=all"
 $paperPattern = '(?i)vision[-_]language[-_]models?|vision[-_]language[-_]foundation[-_]models?|large[-_]vision[-_]language|visual[-_]language[-_]models?|multimodal[-_]large[-_]language|multi-modal[-_]large[-_]language|multimodal[-_]llms?|multi-modal[-_]llms?|video[-_]llms?|video[-_]large[-_]language|(?:^|[-_])VLMs?(?:[-_]|$)|(?:^|[-_])MLLMs?(?:[-_]|$)'
 $excludedPattern = '(?i)vision[-_]language[-_]action|(?:^|[-_])VLA(?:s)?(?:[-_]|$)|vision[-_]language[-_]navigation|(?:^|[-_])VLN(?:s)?(?:[-_]|$)'
 
@@ -57,14 +58,14 @@ function Get-SectionName {
 
 $content = Get-Content -Raw $readmePath
 $existingSlugs = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
-[regex]::Matches($content, "CVPR$Year/(?:html|papers)/(?<slug>[^/]+?)_CVPR_${Year}_paper") | ForEach-Object {
+[regex]::Matches($content, "$Conference$Year/(?:html|papers)/(?<slug>[^/]+?)_${Conference}_${Year}_paper") | ForEach-Object {
     [void]$existingSlugs.Add($_.Groups['slug'].Value)
 }
 
-$index = Invoke-WebRequest -Uri $cvprIndexUrl -UseBasicParsing -TimeoutSec 45
+$index = Invoke-WebRequest -Uri $indexUrl -UseBasicParsing -TimeoutSec 45
 $hrefs = $index.Links |
     Where-Object {
-        $_.href -match "^/content/CVPR$Year/papers/.+_CVPR_${Year}_paper\.pdf$" -and
+        $_.href -match "^/content/$Conference$Year/papers/.+_${Conference}_${Year}_paper\.pdf$" -and
         $_.href -match $paperPattern -and
         $_.href -notmatch $excludedPattern
     } |
@@ -85,13 +86,13 @@ foreach ($section in @(
 
 $added = 0
 foreach ($href in $hrefs) {
-    $slug = ([regex]::Match($href, "/papers/(?<slug>.+)_CVPR_${Year}_paper\.pdf`$")).Groups['slug'].Value
+    $slug = ([regex]::Match($href, "/papers/(?<slug>.+)_${Conference}_${Year}_paper\.pdf`$")).Groups['slug'].Value
     if ($existingSlugs.Contains($slug)) { continue }
 
     $paperUrl = "https://openaccess.thecvf.com$href" -replace '/papers/', '/html/' -replace '\.pdf$', '.html'
     $title = Get-CitationTitle $paperUrl
     $section = Get-SectionName $title
-    $newRows[$section].Add("| $Year | CVPR | **$title** | [[paper]($paperUrl)] | See paper |")
+    $newRows[$section].Add("| $Year | $Conference | **$title** | [[paper]($paperUrl)] | See paper |")
     $added++
 }
 
