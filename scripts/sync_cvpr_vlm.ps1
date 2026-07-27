@@ -37,6 +37,9 @@ function Get-CitationTitle {
 function Get-SectionName {
     param([string]$Title)
 
+    if ($Title -match '(?i)hallucin|semantic grounding errors') {
+        return 'Hallucination Mitigation and Reliability'
+    }
     if ($Title -match '(?i)benchmark|evaluat|hallucinat|safety|attack|jailbreak|adversarial|robust|bias|unlearn|privacy|security|backdoor|calibrat|diagnos|measure|judge') {
         return 'Evaluation and Reliability'
     }
@@ -74,6 +77,7 @@ foreach ($section in @(
     'Multimodal Large Language Models',
     'Grounding, Region, and Pixel Understanding',
     'Video-Language Models',
+    'Hallucination Mitigation and Reliability',
     'Evaluation and Reliability'
 )) {
     $newRows[$section] = [System.Collections.Generic.List[string]]::new()
@@ -101,6 +105,22 @@ foreach ($section in $newRows.Keys) {
     while ($lines[$headerIndex] -ne '| Year | Pub | Title | Links | Main Institution |') { $headerIndex++ }
     $insertIndex = $headerIndex + 2
     $lines.InsertRange($insertIndex, [string[]]$newRows[$section])
+}
+
+# Keep hallucination work discoverable even when older entries predate this section.
+$hallucinationRows = [System.Collections.Generic.List[string]]::new()
+for ($lineIndex = $lines.Count - 1; $lineIndex -ge 0; $lineIndex--) {
+    if ($lines[$lineIndex] -match '^\|\s*\d{4}\s*\|' -and $lines[$lineIndex] -match '(?i)hallucin|semantic grounding errors') {
+        $hallucinationRows.Add($lines[$lineIndex])
+        $lines.RemoveAt($lineIndex)
+    }
+}
+if ($hallucinationRows.Count -gt 0) {
+    $sectionIndex = $lines.IndexOf('### Hallucination Mitigation and Reliability')
+    if ($sectionIndex -lt 0) { throw 'Missing hallucination section' }
+    $headerIndex = $sectionIndex + 1
+    while ($lines[$headerIndex] -ne '| Year | Pub | Title | Links | Main Institution |') { $headerIndex++ }
+    $lines.InsertRange($headerIndex + 2, [string[]]$hallucinationRows)
 }
 
 for ($indexPosition = 0; $indexPosition -lt $lines.Count; $indexPosition++) {
