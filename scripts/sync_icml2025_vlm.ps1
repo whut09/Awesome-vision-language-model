@@ -1,6 +1,7 @@
 <# Collect ICML 2025 VLM papers from the official PMLR proceedings volume. #>
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'paper_categories.ps1')
 $readmePath = Join-Path $PSScriptRoot '..\README.md'
 $indexUrl = 'https://proceedings.mlr.press/v267/'
 $paperPattern = '(?i)vision[- ]language[- ]models?|vision[- ]language[- ]foundation[- ]models?|large[- ]vision[- ]language|visual[- ]language[- ]models?|multimodal[- ]large[- ]language|multi-modal[- ]large[- ]language|multimodal[- ]llms?|multi-modal[- ]llms?|video[- ]llms?|video[- ]large[- ]language|\bVLMs?\b|\bMLLMs?\b'
@@ -26,14 +27,14 @@ $papers = [regex]::Matches($index.Content, '(?is)<div class="paper">\s*<p class=
     Where-Object { $_.Title -match $paperPattern -and $_.Title -notmatch $excludedPattern } |
     Sort-Object Title
 
-$sections = @('Vision-Language Pre-training', 'Multimodal Large Language Models', 'Grounding, Region, and Pixel Understanding', 'Video-Language Models', 'Hallucination Mitigation and Reliability', 'Evaluation and Reliability')
+$sections = $PaperSections
 $newRows = @{}
 foreach ($section in $sections) { $newRows[$section] = [System.Collections.Generic.List[string]]::new() }
 $added = 0
 foreach ($paper in $papers) {
     $normalizedTitle = Get-NormalizedTitle $paper.Title
     if ($existingTitles.Contains($normalizedTitle)) { continue }
-    $newRows[(Get-SectionName $paper.Title)].Add("| 2025 | ICML | **$($paper.Title)** | [[paper]($($paper.Href))] | See paper |")
+    $newRows[(Get-PaperSection $paper.Title)].Add("| 2025 | ICML | **$($paper.Title)** | [[paper]($($paper.Href))] | See paper |")
     [void]$existingTitles.Add($normalizedTitle)
     $added++
 }
@@ -55,6 +56,6 @@ for ($position = 0; $position -lt $lines.Count; $position++) {
     $lines.RemoveRange($rowStart, $rowEnd - $rowStart)
     $lines.InsertRange($rowStart, [string[]]$rows)
 }
-Set-Content -Path $readmePath -Value $lines -Encoding utf8
+Set-Content -Path $readmePath -Value (($lines -join "`n").TrimEnd("`r", "`n")) -Encoding utf8
 Write-Output "Candidates: $($papers.Count)"
 Write-Output "Added: $added"

@@ -7,6 +7,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'paper_categories.ps1')
 $readmePath = Join-Path $PSScriptRoot '..\README.md'
 $baseUrl = if ($Conference -eq 'ICLR') { 'https://iclr.cc' } else { 'https://eccv.ecva.net' }
 $indexUrl = "$baseUrl/virtual/$Year/papers.html"
@@ -34,14 +35,14 @@ $papers = [regex]::Matches($index.Content, $anchorPattern) |
     Where-Object { $_.Title -match $paperPattern -and $_.Title -notmatch $excludedPattern } |
     Sort-Object Title -Unique
 
-$sections = @('Vision-Language Pre-training', 'Multimodal Large Language Models', 'Grounding, Region, and Pixel Understanding', 'Video-Language Models', 'Hallucination Mitigation and Reliability', 'Evaluation and Reliability')
+$sections = $PaperSections
 $newRows = @{}
 foreach ($section in $sections) { $newRows[$section] = [System.Collections.Generic.List[string]]::new() }
 $added = 0
 foreach ($paper in $papers) {
     $normalizedTitle = Get-NormalizedTitle $paper.Title
     if ($existingTitles.Contains($normalizedTitle)) { continue }
-    $newRows[(Get-SectionName $paper.Title)].Add("| $Year | $Conference | **$($paper.Title)** | [[paper]($baseUrl$($paper.Href))] | See paper |")
+    $newRows[(Get-PaperSection $paper.Title)].Add("| $Year | $Conference | **$($paper.Title)** | [[paper]($baseUrl$($paper.Href))] | See paper |")
     [void]$existingTitles.Add($normalizedTitle)
     $added++
 }
@@ -63,6 +64,6 @@ for ($position = 0; $position -lt $lines.Count; $position++) {
     $lines.RemoveRange($rowStart, $rowEnd - $rowStart)
     $lines.InsertRange($rowStart, [string[]]$rows)
 }
-Set-Content -Path $readmePath -Value $lines -Encoding utf8
+Set-Content -Path $readmePath -Value (($lines -join "`n").TrimEnd("`r", "`n")) -Encoding utf8
 Write-Output "Candidates: $($papers.Count)"
 Write-Output "Added: $added"

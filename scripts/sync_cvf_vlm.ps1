@@ -11,6 +11,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'paper_categories.ps1')
 
 $readmePath = Join-Path $PSScriptRoot '..\README.md'
 $indexUrl = "https://openaccess.thecvf.com/$Conference${Year}?day=all"
@@ -73,14 +74,7 @@ $hrefs = $index.Links |
     Sort-Object
 
 $newRows = @{}
-foreach ($section in @(
-    'Vision-Language Pre-training',
-    'Multimodal Large Language Models',
-    'Grounding, Region, and Pixel Understanding',
-    'Video-Language Models',
-    'Hallucination Mitigation and Reliability',
-    'Evaluation and Reliability'
-)) {
+foreach ($section in $PaperSections) {
     $newRows[$section] = [System.Collections.Generic.List[string]]::new()
 }
 
@@ -91,7 +85,7 @@ foreach ($href in $hrefs) {
 
     $paperUrl = "https://openaccess.thecvf.com$href" -replace '/papers/', '/html/' -replace '\.pdf$', '.html'
     $title = Get-CitationTitle $paperUrl
-    $section = Get-SectionName $title
+    $section = Get-PaperSection $title
     $newRows[$section].Add("| $Year | $Conference | **$title** | [[paper]($paperUrl)] | See paper |")
     $added++
 }
@@ -117,7 +111,7 @@ for ($lineIndex = $lines.Count - 1; $lineIndex -ge 0; $lineIndex--) {
     }
 }
 if ($hallucinationRows.Count -gt 0) {
-    $sectionIndex = $lines.IndexOf('### Hallucination Mitigation and Reliability')
+    $sectionIndex = $lines.IndexOf('### Hallucination Mitigation and Faithfulness')
     if ($sectionIndex -lt 0) { throw 'Missing hallucination section' }
     $headerIndex = $sectionIndex + 1
     while ($lines[$headerIndex] -ne '| Year | Pub | Title | Links | Main Institution |') { $headerIndex++ }
@@ -138,6 +132,6 @@ for ($indexPosition = 0; $indexPosition -lt $lines.Count; $indexPosition++) {
     $lines.InsertRange($rowStart, [string[]]$rows)
 }
 
-Set-Content -Path $readmePath -Value $lines -Encoding utf8
+Set-Content -Path $readmePath -Value (($lines -join "`n").TrimEnd("`r", "`n")) -Encoding utf8
 Write-Output "Candidates: $($hrefs.Count)"
 Write-Output "Added: $added"

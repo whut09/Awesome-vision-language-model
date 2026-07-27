@@ -5,6 +5,7 @@ excludes vision-language-action and vision-language-navigation work.
 #>
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'paper_categories.ps1')
 
 $readmePath = Join-Path $PSScriptRoot '..\README.md'
 $indexUrl = 'https://proceedings.neurips.cc/paper_files/paper/2025'
@@ -56,14 +57,7 @@ $papers = [regex]::Matches($index.Content, '(?is)<a title="paper title" href="(?
     Sort-Object Title
 
 $newRows = @{}
-foreach ($section in @(
-    'Vision-Language Pre-training',
-    'Multimodal Large Language Models',
-    'Grounding, Region, and Pixel Understanding',
-    'Video-Language Models',
-    'Hallucination Mitigation and Reliability',
-    'Evaluation and Reliability'
-)) {
+foreach ($section in $PaperSections) {
     $newRows[$section] = [System.Collections.Generic.List[string]]::new()
 }
 
@@ -72,7 +66,7 @@ foreach ($paper in $papers) {
     $normalizedTitle = Get-NormalizedTitle $paper.Title
     if ($existingTitles.Contains($normalizedTitle)) { continue }
 
-    $section = Get-SectionName $paper.Title
+    $section = Get-PaperSection $paper.Title
     $paperUrl = "https://proceedings.neurips.cc$($paper.Href)"
     $newRows[$section].Add("| 2025 | NeurIPS | **$($paper.Title)** | [[paper]($paperUrl)] | See paper |")
     [void]$existingTitles.Add($normalizedTitle)
@@ -104,6 +98,6 @@ for ($indexPosition = 0; $indexPosition -lt $lines.Count; $indexPosition++) {
     $lines.InsertRange($rowStart, [string[]]$rows)
 }
 
-Set-Content -Path $readmePath -Value $lines -Encoding utf8
+Set-Content -Path $readmePath -Value (($lines -join "`n").TrimEnd("`r", "`n")) -Encoding utf8
 Write-Output "Candidates: $($papers.Count)"
 Write-Output "Added: $added"
