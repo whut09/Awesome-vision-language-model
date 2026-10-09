@@ -340,12 +340,14 @@ public version of an accepted paper.
 | 2025 | CVPR | **Vision-Language Model IP Protection via Prompt-based Learning** | [[paper](https://openaccess.thecvf.com/content/CVPR2025/html/Wang_Vision-Language_Model_IP_Protection_via_Prompt-based_Learning_CVPR_2025_paper.html)] | See paper |
 | 2025 | ICML | **Vision-Language Model Selection and Reuse for Downstream Adaptation** | [[paper](https://proceedings.mlr.press/v267/tan25i.html)] | See paper |
 | 2025 | NeurIPS | **You Only Communicate Once: One-shot Federated Low-Rank Adaptation of MLLM** | [[paper](https://proceedings.neurips.cc/paper_files/paper/2025/hash/58e6c003c9fb3992265005ff6aef1913-Abstract-Conference.html)] | See paper |
+| 2024 | CVPR | **Iterated Learning Improves Compositionality in Large Vision-Language Models** | [[paper](https://arxiv.org/abs/2404.02145)] | See paper |
 | 2024 | ECCV | **AdaShield: Safeguarding Multimodal Large Language Models from Structure-based Attack via Adaptive Shield Prompting** | [[paper](https://eccv.ecva.net/virtual/2024/poster/1116)] | See paper |
 | 2024 | ECCV | **Attention Prompting on Image for Large Vision-Language Models** | [[paper](https://eccv.ecva.net/virtual/2024/poster/2603)] | See paper |
 | 2024 | ECCV | **Cascade Prompt Learning for Visual-Language Model Adaptation** | [[paper](https://eccv.ecva.net/virtual/2024/poster/1130)] | See paper |
 | 2024 | ECCV | **GalLop: Learning global and local prompts for vision-language models** | [[paper](https://eccv.ecva.net/virtual/2024/poster/1871)] | See paper |
 | 2024 | ECCV | **MM1: Methods, Analysis & Insights from Multimodal LLM Pre-training** | [[paper](https://eccv.ecva.net/virtual/2024/poster/369)] | See paper |
 | 2024 | ECCV | **uCAP: An Unsupervised Prompting Method for Vision-Language Models** | [[paper](https://eccv.ecva.net/virtual/2024/poster/2005)] | See paper |
+| 2023 | CVPR | **EXIF as Language: Learning Cross-Modal Associations between Images and Camera Metadata** | [[paper](https://arxiv.org/abs/2301.04647)] | See paper |
 | 2023 | ICML | **BLIP-2: Bootstrapping Language-Image Pre-training With Frozen Image Encoders and Large Language Models** | [[paper](https://arxiv.org/abs/2301.12597)] [[code](https://github.com/salesforce/LAVIS)] | Salesforce Research |
 | 2023 | ICLR | **VLMo: Unified Vision-Language Pre-Training With Mixture-of-Modality-Experts** | [[paper](https://arxiv.org/abs/2111.02358)] [[code](https://github.com/microsoft/unilm/tree/master/vlmo)] | Microsoft Research Asia |
 | 2022 | ICML | **BLIP: Bootstrapping Language-Image Pre-training for Unified Vision-Language Understanding and Generation** | [[paper](https://arxiv.org/abs/2201.12086)] [[code](https://github.com/salesforce/BLIP)] | Salesforce Research |
